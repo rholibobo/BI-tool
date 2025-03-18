@@ -23,6 +23,8 @@ import {
   ListItemButton,
   useMediaQuery,
   useTheme,
+  Alert,
+  CircularProgress,
 } from "@mui/material"
 
 import {
@@ -39,6 +41,7 @@ import {
   KeyboardArrowDown,
   KeyboardArrowUp,
   FilterList,
+  Refresh,
 } from "@mui/icons-material"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 import { BarChart, Bar } from "recharts"
@@ -52,6 +55,7 @@ import {
   userGrowthData,
 } from "../constants/Constants"
 import FinancialDataCardDisplay from "../cards/SummaryCards"
+import { BudgetRow, CardData, CategoryData, SalesData, UserGrowthData } from "../interfaces/interface"
 
 export default function DashboardPage() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -65,6 +69,28 @@ export default function DashboardPage() {
 
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const [selectedPeriod, setSelectedPeriod] = useState("year")
+
+  // State for API data
+  const [salesData, setSalesData] = useState<SalesData[]>([])
+  const [userGrowthData, setUserGrowthData] = useState<UserGrowthData[]>([])
+  const [categoryData, setCategoryData] = useState<CategoryData[]>([])
+  const [budgetRows, setBudgetRows] = useState<BudgetRow[]>([])
+  const [summaryData, setSummaryData] = useState<CardData[]>([])
+
+  // Loading and error states
+  const [loadingSales, setLoadingSales] = useState(true)
+  const [loadingUsers, setLoadingUsers] = useState(true)
+  const [loadingCategories, setLoadingCategories] = useState(true)
+  const [loadingBudget, setLoadingBudget] = useState(true)
+  const [loadingSummary, setLoadingSummary] = useState(true)
+
+  const [errorSales, setErrorSales] = useState<string | null>(null)
+  const [errorUsers, setErrorUsers] = useState<string | null>(null)
+  const [errorCategories, setErrorCategories] = useState<string | null>(null)
+  const [errorBudget, setErrorBudget] = useState<string | null>(null)
+  const [errorSummary, setErrorSummary] = useState<string | null>(null)
+
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -118,6 +144,118 @@ export default function DashboardPage() {
         ? -1
         : 1
   })
+
+  // Fetch data functions
+  const fetchSalesData = async () => {
+    setLoadingSales(true)
+    setErrorSales(null)
+    try {
+      const response = await fetch(`/api/dashboard/sales-trends?period=${selectedPeriod}`)
+      if (!response.ok) {
+        throw new Error("Failed to fetch sales data")
+      }
+      const data = await response.json()
+      setSalesData(data)
+    } catch (error) {
+      setErrorSales(error instanceof Error ? error.message : "An error occurred")
+      console.error("Error fetching sales data:", error)
+    } finally {
+      setLoadingSales(false)
+    }
+  }
+
+  const fetchUserGrowthData = async () => {
+    setLoadingUsers(true)
+    setErrorUsers(null)
+    try {
+      const response = await fetch("/api/dashboard/user-growth")
+      if (!response.ok) {
+        throw new Error("Failed to fetch user growth data")
+      }
+      const data = await response.json()
+      setUserGrowthData(data)
+    } catch (error) {
+      setErrorUsers(error instanceof Error ? error.message : "An error occurred")
+      console.error("Error fetching user growth data:", error)
+    } finally {
+      setLoadingUsers(false)
+    }
+  }
+
+  const fetchCategoryData = async () => {
+    setLoadingCategories(true)
+    setErrorCategories(null)
+    try {
+      const response = await fetch("/api/dashboard/category-distribution")
+      if (!response.ok) {
+        throw new Error("Failed to fetch category data")
+      }
+      const data = await response.json()
+      setCategoryData(data)
+    } catch (error) {
+      setErrorCategories(error instanceof Error ? error.message : "An error occurred")
+      console.error("Error fetching category data:", error)
+    } finally {
+      setLoadingCategories(false)
+    }
+  }
+
+  const fetchBudgetData = async () => {
+    setLoadingBudget(true)
+    setErrorBudget(null)
+    try {
+      const response = await fetch(
+        `/api/dashboard/budget-details?search=${filterName}&sortBy=${orderBy}&sortOrder=${order}`,
+      )
+      if (!response.ok) {
+        throw new Error("Failed to fetch budget data")
+      }
+      const data = await response.json()
+      setBudgetRows(data.rows)
+    } catch (error) {
+      setErrorBudget(error instanceof Error ? error.message : "An error occurred")
+      console.error("Error fetching budget data:", error)
+    } finally {
+      setLoadingBudget(false)
+    }
+  }
+
+  const fetchSummaryData = async () => {
+    setLoadingSummary(true)
+    setErrorSummary(null)
+    try {
+      const response = await fetch("/api/dashboard/summary")
+      if (!response.ok) {
+        throw new Error("Failed to fetch summary data")
+      }
+      const data = await response.json()
+      setSummaryData(data)
+    } catch (error) {
+      setErrorSummary(error instanceof Error ? error.message : "An error occurred")
+      console.error("Error fetching summary data:", error)
+    } finally {
+      setLoadingSummary(false)
+    }
+  }
+
+  // Fetch all data on initial load
+  useEffect(() => {
+    fetchSalesData()
+    fetchUserGrowthData()
+    fetchCategoryData()
+    fetchBudgetData()
+    fetchSummaryData()
+  }, [])
+
+  // Refetch sales data when period changes
+  useEffect(() => {
+    fetchSalesData()
+  }, [selectedPeriod])
+
+  // Refetch budget data when filter or sort changes
+  useEffect(() => {
+    fetchBudgetData()
+  }, [filterName, orderBy, order])
 
   const drawer = (
     <div>
@@ -266,9 +404,9 @@ export default function DashboardPage() {
             height: { xs: "auto", md: "96px" },
           }}
         >
-          <div className="flex justify-between items-center gap-4 md:block mb-4 md:mb-0">
+          <div className="flex justify-between items-center gap-4 lg:block mb-4 md:mb-0">
             <p className="font-bold text-2xl md:text-3xl">Dashboard</p>
-            <div className="flex w-full md:w-auto justify-between items-center gap-4 lg:hidden">
+            <div className="flex w-full md:w-auto justify-between items-center gap-4 md:hidden">
               <div className="bg-[#efecec] h-10 w-10 rounded-[50%] flex items-center justify-center">
                 <Notifications sx={{ color: "#828282" }} />
               </div>
@@ -286,7 +424,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="w-full md:w-[50%] flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="bg-[#efecec] w-full md:w-1/2 flex items-center px-2 py-3 rounded-xl">
+            <div className="bg-[#efecec] w-full md:w-1/2 flex items-center px-2 py-3 rounded-xl md:hidden lg:flex">
               <Search sx={{ color: "#828282" }} />
               <input
                 type="text"
@@ -294,7 +432,7 @@ export default function DashboardPage() {
                 placeholder="Search"
               />
             </div>
-            <div className="hidden lg:flex w-full md:w-auto justify-between items-center gap-4">
+            <div className="hidden md:flex w-full md:w-auto justify-between items-center gap-4">
               <div className="bg-[#efecec] h-10 w-10 rounded-[50%] flex items-center justify-center">
                 <Notifications sx={{ color: "#828282" }} />
               </div>
@@ -329,7 +467,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex justify-between items-center gap-4 w-full md:w-auto">
-            <div className="relative w-full md:w-auto">
+            <div className="relative w-1/2 md:w-auto">
               <div
                 onClick={() => {
                   displayDropdownArrow()
@@ -380,17 +518,44 @@ export default function DashboardPage() {
             overflowX: "hidden", // Prevent horizontal scrolling
           }}
         >
-          {/* Summary Cards */}
+            {/* Summary Cards */}
           <Box sx={{ mt: 4 }}>
-            <FinancialDataCardDisplay data={CardDisplayData} />
+            {loadingSummary ? (
+              <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                <CircularProgress />
+              </Box>
+            ) : errorSummary ? (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {errorSummary}
+              </Alert>
+            ) : (
+              <FinancialDataCardDisplay data={summaryData} />
+            )}
           </Box>
+          
 
           <Box sx={{ mt: 6 }}>
             {/* Line Graph */}
             <Paper sx={{ p: { xs: 2, md: 3 }, mb: 4 }}>
-              <Typography gutterBottom className="text-xl md:text-2xl text-[#273043] font-bold">
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                <Typography gutterBottom className="text-xl md:text-2xl text-[#273043] font-bold">
                 Sales Trends
               </Typography>
+              {!loadingSales && (
+                  <IconButton onClick={fetchSalesData} size="small">
+                    <Refresh />
+                  </IconButton>
+                )}
+            </Box>
+            {loadingSales ? (
+                <Box sx={{ display: "flex", justifyContent: "center", p: 4, height: { xs: 200, sm: 300, md: 400 } }}>
+                  <CircularProgress />
+                </Box>
+              ) : errorSales ? (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {errorSales}
+                </Alert>
+              ) : (
               <Box sx={{ height: { xs: 300, sm: 400, md: 500 } }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={salesData}>
@@ -482,7 +647,7 @@ export default function DashboardPage() {
                     )}
                   </LineChart>
                 </ResponsiveContainer>
-              </Box>
+              </Box>)}
             </Paper>
 
             {/* Bar Chart */}
@@ -611,16 +776,7 @@ export default function DashboardPage() {
                     maxWidth: { sm: "400px" },
                   }}
                 />
-                <Box
-                  sx={{
-                    display: { xs: "flex", sm: "none" },
-                    justifyContent: "flex-end",
-                  }}
-                >
-                  <IconButton>
-                    <FilterList />
-                  </IconButton>
-                </Box>
+                
               </Box>
 
               {/* Responsive table */}
