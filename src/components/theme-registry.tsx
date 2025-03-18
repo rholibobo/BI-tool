@@ -56,17 +56,24 @@ const theme = createTheme({
         },
       },
     },
-    MuiListItem: {
+    MuiListItemButton: {
       styleOverrides: {
         root: {
           "&.Mui-selected": {
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            backgroundColor: "#4fc3f7", // Light blue background
             "&:hover": {
-              backgroundColor: "rgba(255, 255, 255, 0.15)",
+              backgroundColor: "#4fc3f7", // Keep the same color on hover
+            },
+            "& .MuiListItemIcon-root": {
+              color: "#ffffff", // White icon for selected item
+            },
+            "& .MuiListItemText-primary": {
+              fontWeight: "bold", // Bold text for selected item
+              color: "#ffffff", // White text for selected item
             },
           },
           "&:hover": {
-            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            backgroundColor: "rgba(79, 195, 247, 0.2)", // Light blue with opacity for hover
           },
         },
       },
