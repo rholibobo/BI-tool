@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { ThemeProvider, createTheme } from "@mui/material/styles"
 import CssBaseline from "@mui/material/CssBaseline"
 
@@ -33,27 +34,40 @@ const theme = createTheme({
     ].join(","),
   },
   components: {
-    MuiButton: {
+    MuiAppBar: {
       styleOverrides: {
         root: {
-          textTransform: "none",
-          borderRadius: 8,
+          backgroundColor: "#1a2233", // Match the drawer color
         },
       },
     },
-    MuiTextField: {
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: "#1a2233", // Darker blue that matches the image
+          color: "#ffffff",
+        },
+      },
+    },
+    MuiListItemIcon: {
       styleOverrides: {
         root: {
-          "& .MuiOutlinedInput-root": {
-            borderRadius: 8,
+          color: "#ffffff",
+        },
+      },
+    },
+    MuiListItem: {
+      styleOverrides: {
+        root: {
+          "&.Mui-selected": {
+            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.15)",
+            },
           },
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          borderRadius: 12,
+          "&:hover": {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+          },
         },
       },
     },
