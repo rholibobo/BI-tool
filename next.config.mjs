@@ -5,6 +5,25 @@ try {
   // ignore error
 }
 
+module.exports = {
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: process.env.NODE_ENV === 'development' 
+          ? '/api/:path*' 
+          : '/_next/static/mockServiceWorker.js',
+      }
+    ]
+  },
+  // Required for MSW in production
+  productionBrowserSourceMaps: true,
+  // Disable static optimization for API routes
+  experimental: {
+    fullySpecified: false,
+  }
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
