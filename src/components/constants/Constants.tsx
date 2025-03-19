@@ -29,10 +29,10 @@ export const salesData = [
   ];
 
 export const categoryDistributionData = [
-  { name: "Category A", value: 400 },
-  { name: "Category B", value: 300 },
-  { name: "Category C", value: 300 },
-  { name: "Category D", value: 200 },
+  { name: "Apple Phones", value: 400 },
+  { name: "Macbooks", value: 300 },
+  { name: "Windows Laptop", value: 300 },
+  { name: "Android Phones", value: 200 },
 ];
 
 export const COLORS = ["#2F80ED", "#56CCF2", "#27AE60", "#FF8042"]
