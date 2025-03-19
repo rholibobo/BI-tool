@@ -84,7 +84,7 @@ export default function LoginForm() {
   }
 
   return (
-    <Paper elevation={3} sx={{ p: 3, width: { xs: "90%", md: "50%" } }}>
+    <Paper elevation={3} sx={{ p: 3, width: { xs: "90%", md: "40%" } }}>
       <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
         <Controller
           name="email"
