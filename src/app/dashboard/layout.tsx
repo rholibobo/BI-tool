@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 async function enableMocking() {
     // Only enable MSW in development
-    if (process.env.NODE_ENV !== "development" && process.env.MSW_MODE !== "enabled") {
+    if (process.env.NODE_ENV !== "development" && process.env.NEXT_PUBLIC_MSW_ENABLED !== "true") {
       return Promise.resolve(true)
     }
   
