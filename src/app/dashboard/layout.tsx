@@ -1,30 +1,29 @@
 "use client";
 
-import { startMockServiceWorker } from "@/src/mocks/browser";
 import type React from "react";
 
 import { useEffect, useState } from "react";
 
 async function enableMocking() {
-  // Only enable MSW in development
-  if (process.env.NODE_ENV !== "development") {
-    return Promise.resolve(true);
+    // Only enable MSW in development
+    if (process.env.NODE_ENV !== "development" && process.env.MSW_MODE !== "enabled") {
+      return Promise.resolve(true)
+    }
+  
+    try {
+      // Import the MSW initialization module
+      const { default: initMocks } = await import("../../mocks")
+  
+      // Initialize MSW
+      await initMocks()
+  
+      return true
+    } catch (error) {
+      console.error("Error initializing MSW:", error)
+      // Return true anyway to not block rendering
+      return true
+    }
   }
-
-  try {
-    // Import the MSW initialization module
-    const { default: initMocks } = await import("../../mocks");
-
-    // Initialize MSW
-    await initMocks();
-
-    return true;
-  } catch (error) {
-    console.error("Error initializing MSW:", error);
-    // Return true anyway to not block rendering
-    return true;
-  }
-}
 
 export default function DashboardLayout({
   children,
@@ -34,16 +33,12 @@ export default function DashboardLayout({
   const [isMswReady, setIsMswReady] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  process.env.NODE_ENV === "development"
-    ? useEffect(() => {
-        // Initialize MSW when the component mounts
-        enableMocking().then((ready) => {
-          setIsMswReady(ready);
-        });
-      }, [])
-    : useEffect(() => {
-        startMockServiceWorker();
-      }, []);
+  useEffect(() => {
+    // Initialize MSW when the component mounts
+    enableMocking().then((ready) => {
+      setIsMswReady(ready)
+    })
+  }, [])
 
   if (!isMswReady) {
     return (
