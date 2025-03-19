@@ -48,13 +48,21 @@ A Mini Business Intelligence tool built with Next.js, Material UI, and client-si
 ```bash
 git clone https://github.com/rholibobo/BI-tool.git
 cd nextjs-auth-dashboard
-
+```
 
 2. Install dependencies
 ```bash
 npm install
+``` 
 
 3. Initialize MSW:
 ```bash
 npx msw init public/ --save
+```
 
+4. Start Development Server:
+```bash
+npm run dev
+```
+
+## Great Job!!
