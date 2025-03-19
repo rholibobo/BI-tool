@@ -1,5 +1,6 @@
-import DashboardPage from "@/src/components/dashboard/Dashboard";
+
+import ProtectedDashboardPage from "@/src/components/dashboard/ProtectedDashboard";
 
 export default function Dashboard() {
-  return <DashboardPage />;
+  return <ProtectedDashboardPage />;
 }

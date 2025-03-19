@@ -5,9 +5,20 @@ import { useRouter } from "next/navigation"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { TextField, Button, Box, Paper, InputAdornment, IconButton, Alert, Snackbar } from "@mui/material"
+import {
+  TextField,
+  Button,
+  Box,
+  Paper,
+  InputAdornment,
+  IconButton,
+  Alert,
+  Snackbar,
+  CircularProgress,
+} from "@mui/material"
 import { Visibility, VisibilityOff } from "@mui/icons-material"
 import { useAuth } from "@/src/context/auth-context"
+
 
 const registerSchema = z
   .object({
@@ -34,6 +45,7 @@ export default function RegisterForm() {
   const [openSnackbar, setOpenSnackbar] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState("")
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
   const { register } = useAuth()
 
@@ -52,9 +64,10 @@ export default function RegisterForm() {
   })
 
   const onSubmit = async (data: RegisterFormValues) => {
+    setIsSubmitting(true)
     try {
       await register(data.email, data.password, data.fullName)
-      setSnackbarMessage("Registration successful")
+      setSnackbarMessage("Registration successful! Redirecting to login...")
       setSnackbarSeverity("success")
       setOpenSnackbar(true)
 
@@ -63,9 +76,11 @@ export default function RegisterForm() {
         router.push("/auth/login")
       }, 1500)
     } catch (error) {
-      setSnackbarMessage("An error occurred during registration")
+      const errorMessage = error instanceof Error ? error.message : "An error occurred during registration"
+      setSnackbarMessage(errorMessage)
       setSnackbarSeverity("error")
       setOpenSnackbar(true)
+      setIsSubmitting(false)
     }
   }
 
@@ -91,6 +106,7 @@ export default function RegisterForm() {
               autoFocus
               error={!!errors.fullName}
               helperText={errors.fullName?.message}
+              disabled={isSubmitting}
             />
           )}
         />
@@ -109,6 +125,7 @@ export default function RegisterForm() {
               autoComplete="email"
               error={!!errors.email}
               helperText={errors.email?.message}
+              disabled={isSubmitting}
             />
           )}
         />
@@ -127,6 +144,7 @@ export default function RegisterForm() {
               id="password"
               error={!!errors.password}
               helperText={errors.password?.message}
+              disabled={isSubmitting}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -134,6 +152,7 @@ export default function RegisterForm() {
                       aria-label="toggle password visibility"
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
+                      disabled={isSubmitting}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -158,6 +177,7 @@ export default function RegisterForm() {
               id="confirmPassword"
               error={!!errors.confirmPassword}
               helperText={errors.confirmPassword?.message}
+              disabled={isSubmitting}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -165,6 +185,7 @@ export default function RegisterForm() {
                       aria-label="toggle confirm password visibility"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       edge="end"
+                      disabled={isSubmitting}
                     >
                       {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -175,8 +196,8 @@ export default function RegisterForm() {
           )}
         />
 
-        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-          Create Account
+        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} disabled={isSubmitting}>
+          {isSubmitting ? <CircularProgress size={24} /> : "Create Account"}
         </Button>
       </Box>
 
@@ -184,7 +205,7 @@ export default function RegisterForm() {
         open={openSnackbar}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}

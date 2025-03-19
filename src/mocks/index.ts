@@ -1,18 +1,18 @@
-import { server } from './server';
+import { server } from "./server";
 
 // Start the MSW worker in the browser environment
 async function initMocks() {
-    if (typeof window === "undefined") {
-      const {server} = await import("./server")
-      server.listen()
-    } else {
-      const { worker } = await import("./browser")
-      worker.start({
-        onUnhandledRequest: "bypass", // Don't warn about unhandled requests
-      })
-    }
+  if (typeof window === "undefined") {
+    const { server } = await import("./server");
+    server.listen();
+  } else {
+    const { worker } = await import("./browser");
+    return worker.start();
   }
-  
-  export default initMocks
-  
-  
+}
+
+(async () => {
+  await initMocks();
+})();
+
+export default initMocks;

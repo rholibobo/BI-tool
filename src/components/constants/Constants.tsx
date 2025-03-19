@@ -69,13 +69,13 @@ export const CardDisplayData = [
     },
     {
       title: "Sales Revenue",
-      amount: 50000000,
+      amount: 500000000,
       percentage: 6,
       note: "Year to Date",
     },
     {
       title: "Total Expenditure",
-      amount: 1000756000,
+      amount: 1000000,
       percentage: 25,
       note: "Year to Date",
     },

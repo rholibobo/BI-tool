@@ -1,28 +1,43 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
+
+async function enableMocking() {
+    // Only enable MSW in development
+    if (process.env.NODE_ENV !== "development") {
+      return Promise.resolve(true)
+    }
+  
+    try {
+      // Import the MSW initialization module
+      const { default: initMocks } = await import("../../mocks")
+  
+      // Initialize MSW
+      await initMocks()
+  
+      return true
+    } catch (error) {
+      console.error("Error initializing MSW:", error)
+      // Return true anyway to not block rendering
+      return true
+    }
+  }
 
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const [isMswReady, setIsMswReady] = useState(false)
+  const [isMswReady, setIsMswReady] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    // Only import MSW in development
-    if (process.env.NODE_ENV === "development") {
-      import("../../mocks").then((module) => {
-        const initMocks = module.default
-        initMocks().then(() => {
-          setIsMswReady(true)
-        })
-      })
-    } else {
-      setIsMswReady(true)
-    }
+    // Initialize MSW when the component mounts
+    enableMocking().then((ready) => {
+      setIsMswReady(ready)
+    })
   }, [])
 
   if (!isMswReady) {
@@ -33,9 +48,8 @@ export default function DashboardLayout({
           <p className="mt-2">Loading dashboard...</p>
         </div>
       </div>
-    )
+    );
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
-

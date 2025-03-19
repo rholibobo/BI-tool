@@ -65,6 +65,9 @@ import {
   UserGrowthData,
 } from "../interfaces/interface";
 
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/src/context/auth-context";
+
 export default function DashboardPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [order, setOrder] = useState<"asc" | "desc">("asc");
@@ -78,6 +81,8 @@ export default function DashboardPage() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedPeriod, setSelectedPeriod] = useState("year");
+  const { logout } = useAuth();
+  const router = useRouter();
 
   // State for API data
   const [salesData, setSalesData] = useState<SalesData[]>([]);
@@ -147,6 +152,8 @@ export default function DashboardPage() {
     row.name.toLowerCase().includes(filterName.toLowerCase())
   );
 
+  const fullName = localStorage.getItem("currentUser") ? JSON.parse(localStorage.getItem("currentUser")!).fullName : ""
+
   const sortedRows = filteredRows.sort((a, b) => {
     if (orderBy === "amount") {
       return order === "asc" ? a.amount - b.amount : b.amount - a.amount;
@@ -163,6 +170,7 @@ export default function DashboardPage() {
   const baseUrl: string = "https://www.getdata.com";
 
   // Fetch data functions
+
   const fetchSalesData = async () => {
     setLoadingSales(true);
     setErrorSales(null);
@@ -292,6 +300,11 @@ export default function DashboardPage() {
     fetchBudgetData();
   }, [filterName, orderBy, order]);
 
+  const handleLogout = () => {
+    logout();
+    router.push("/auth/login");
+  };
+
   const drawer = (
     <div>
       <Box
@@ -321,7 +334,6 @@ export default function DashboardPage() {
           "Budget Planning",
           "Reports",
           "Settings",
-          "Logout",
         ].map((text, index) => (
           <ListItemButton
             key={text}
@@ -355,15 +367,31 @@ export default function DashboardPage() {
                 <AccountBalance />
               ) : index === 3 ? (
                 <Description />
-              ) : index === 4 ? (
-                <Settings />
               ) : (
-                <ExitToApp />
+                <Settings />
               )}
             </ListItemIcon>
             <ListItemText primary={text} />
           </ListItemButton>
         ))}
+        <ListItemButton
+          key="Logout"
+          onClick={handleLogout}
+          sx={{
+            paddingLeft: "16px",
+            borderRadius: "0 8px 8px 0",
+            margin: "12px 8px 36px 0",
+            transition: "all 0.2s ease-in-out",
+            "&:hover": {
+              backgroundColor: "rgba(79, 195, 247, 0.2)",
+            },
+          }}
+        >
+          <ListItemIcon>
+            <ExitToApp />
+          </ListItemIcon>
+          <ListItemText primary="Logout" />
+        </ListItemButton>
       </List>
     </div>
   );
@@ -466,7 +494,7 @@ export default function DashboardPage() {
                   <Person sx={{ color: "#828282" }} />
                 </div>
                 <div className="text-sm">
-                  <p className="text-sm font-semibold">John Doe</p>
+                  <p className="text-sm font-semibold">{fullName}</p>
                   <p className="text-xs font-medium">Administrator</p>
                 </div>
                 <KeyboardArrowDown sx={{ color: "#828282" }} />

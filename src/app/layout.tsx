@@ -5,6 +5,7 @@ import { Montserrat } from "next/font/google";
 import "./globals.css"
 import { AuthProvider } from "../context/auth-context"
 import ThemeRegistry from "../components/theme-registry"
+import Script from "next/script";
 
 
 const montserrat = Montserrat({ subsets: ["latin"], display: "swap" });
@@ -21,6 +22,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {process.env.NODE_ENV === "development" && (
+          <Script
+            id="msw-setup"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                if (typeof window !== 'undefined') {
+                  window.MSW_READY = false;
+                  window.addEventListener('MSW_READY', () => {
+                    window.MSW_READY = true;
+                  });
+                }
+              `,
+            }}
+          />
+        )}
+      </head>
       <body className={montserrat.className}>
         <ThemeRegistry>
           <AuthProvider>{children}</AuthProvider>
