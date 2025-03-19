@@ -80,6 +80,18 @@
   }
 }
 
+.status-completed {
+  background-color: #27AE60;
+}
+
+.status-in-progress {
+  background-color: rgb(175, 160, 31);
+}
+
+.status-pending {
+  background-color: #096787;
+}
+
 @layer base {
   * {
     @apply border-border;

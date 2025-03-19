@@ -152,7 +152,9 @@ export default function DashboardPage() {
     row.name.toLowerCase().includes(filterName.toLowerCase())
   );
 
-  const fullName = localStorage.getItem("currentUser") ? JSON.parse(localStorage.getItem("currentUser")!).fullName : ""
+  const fullName = localStorage.getItem("currentUser")
+    ? JSON.parse(localStorage.getItem("currentUser")!).fullName
+    : "";
 
   const sortedRows = filteredRows.sort((a, b) => {
     if (orderBy === "amount") {
@@ -304,6 +306,19 @@ export default function DashboardPage() {
     logout();
     router.push("/auth/login");
   };
+
+  function getStatusColor(status: string) {
+    switch (status) {
+      case "Completed":
+        return "status-completed";
+      case "In Progress":
+        return "status-in-progress";
+      case "Pending":
+        return "status-pending";
+      default:
+        return ""; // Default class if status is not recognized
+    }
+  }
 
   const drawer = (
     <div>
@@ -1067,7 +1082,17 @@ export default function DashboardPage() {
                               })}
                             </TableCell>
                             <TableCell align="right">{row.dateSold}</TableCell>
-                            <TableCell align="right">{row.status}</TableCell>
+                            <TableCell align="center">
+                              <div className="flex justify-end">
+                                <div
+                                  className={`${getStatusColor(
+                                    row.status
+                                  )} text-white rounded-md p-2 w-24 flex justify-center items-center`}
+                                >
+                                  {row.status}
+                                </div>
+                              </div>
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
