@@ -10,17 +10,9 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <Container
-      component="main"
-      maxWidth="xs"
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-        alignItems: "center",
-        justifyContent: "center",
-        py: 4,
-      }}
+    <main
+    className="w-full flex flex-col min-h-screen items-center justify-center py-4"
+    style={{ backgroundImage: "url('/salesbg.jpg')", backgroundSize: "cover", backgroundRepeat: "no-repeat", height: "100vh" }}
     >
       <Box sx={{ mb: 4, textAlign: "center" }}>
         <Typography component="h1" variant="h4" fontWeight="bold">
@@ -36,7 +28,7 @@ export default function LoginPage() {
         </Box>
       </Box>
       <LoginForm />
-    </Container>
+    </main>
   )
 }
 
